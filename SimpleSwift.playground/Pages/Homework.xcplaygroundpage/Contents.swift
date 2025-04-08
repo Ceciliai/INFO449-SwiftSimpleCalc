@@ -27,12 +27,40 @@ print("Welcome to the UW Calculator Playground")
 //: For this latter set of operations, it is safe to assume that `["count"]` (with no additional arguments) is 0, `["avg"]` is also 0, and `["fact"]` is 0. `["1", "fact"]` should return 1, and `["0", "fact"]` should also return 1. (Yes, 0-factorial is 1. True story.)
 //: 
 func calculate(_ args: [String]) -> Int {
-    return -1
+    guard !args.isEmpty else { return 0 }
+    
+    guard let last = args.last else { return 0 }
+
+    switch last {
+    case "count":
+        return args.dropLast().compactMap { Int($0) }.count
+    case "avg":
+        let numbers = args.dropLast().compactMap { Int($0) }
+        guard !numbers.isEmpty else { return 0 }
+        return numbers.reduce(0, +) / numbers.count
+    case "fact":
+        guard let number = Int(args.first ?? ""), number >= 0 else { return 0 }
+        return (1...max(1, number)).reduce(1, *)
+    default:
+        guard args.count == 3,
+              let lhs = Int(args[0]),
+              let rhs = Int(args[2]) else { return 0 }
+        let op = args[1]
+        switch op {
+        case "+": return lhs + rhs
+        case "-": return lhs - rhs
+        case "*": return lhs * rhs
+        case "/": return rhs == 0 ? 0 : lhs / rhs
+        case "%": return rhs == 0 ? 0 : lhs % rhs
+        default: return 0
+        }
+    }
+}
+func calculate(_ arg: String) -> Int {
+    let tokens = arg.split(separator: " ").map { String($0) }
+    return calculate(tokens)
 }
 
-func calculate(_ arg: String) -> Int {
-    return -1
-}
 
 //: Below this are the test expressions/calls to verify if your code is correct.
 //:
@@ -112,13 +140,46 @@ calculate("1 -2 3 -4 5 count") == 5
 //: Integer-based versions above.
 //: 
 //: This is worth 1 pt
-/*
+
 func calculate(_ args: [String]) -> Double {
-    return -1.0
+    guard !args.isEmpty else { return 0.0 }
+
+    guard let last = args.last else { return 0.0 }
+
+    switch last {
+    case "count":
+        return Double(args.dropLast().compactMap { Double($0) }.count)
+    case "avg":
+        let numbers = args.dropLast().compactMap { Double($0) }
+        guard !numbers.isEmpty else { return 0.0 }
+        return numbers.reduce(0.0, +) / Double(numbers.count)
+    default:
+        guard args.count == 3,
+              let lhs = Double(args[0]),
+              let rhs = Double(args[2]) else { return 0.0 }
+        
+        let op = args[1]
+        switch op {
+        case "+": return lhs + rhs
+        case "-": return lhs - rhs
+        case "*": return lhs * rhs
+        case "/": return rhs == 0 ? 0.0 : lhs / rhs
+        case "%": return rhs == 0 ? 0.0 : lhs.truncatingRemainder(dividingBy: rhs)
+        default: return 0.0
+        }
+    }
 }
 func calculate(_ arg: String) -> Double {
-    return -1.0
+    let tokens = arg.split(separator: " ").map { String($0) }
+    return calculate(tokens)
 }
+
+
+ 
+ 
+ 
+ 
+ 
 
 calculate(["2.0", "+", "2.0"]) == 4.0
 calculate([".5", "+", "1.5"]) == 2.0
@@ -127,4 +188,4 @@ calculate(["2.5", "*", "2.5"]) == 6.25
 calculate(["2.0", "/", "2.0"]) == 1.0
 calculate(["2.0", "%", "2.0"]) == 0.0
 calculate("1.0 2.0 3.0 4.0 5.0 count") == 5.0
-*/
+
